@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>我的 GitHub 个人页面</title>
+    <!-- 简单重置与基础样式 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header img.avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-top: 16px;
+        }
+
+        header p.bio {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            color: #24292e;
+        }
+
+        /* 仓库列表 */
+        ul.repo-list {
+            list-style: none;
+        }
+
+        ul.repo-list li.repo-item {
+            background-color: #fff;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        ul.repo-list li.repo-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        li.repo-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+        }
+
+        li.repo-item p.desc {
+            font-size: 0.95rem;
+            color: #586069;
+            margin-bottom: 8px;
+        }
+
+        li.repo-item .meta {
+            font-size: 0.85rem;
+            color: #586069;
+        }
+
+        /* 贡献日历 */
+        .calendar-container {
+            text-align: center;
+        }
+
+        .calendar-container img {
+            max-width: 100%;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+        }
+
+        /* 版权信息 */
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #999;
+            padding-top: 20px;
+            border-top: 1px solid #e1e4e8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 个人简介（从 GitHub API 动态拉取） -->
+    <header id="profile">
+        <!-- JS 会填充头像、昵称、简介 -->
+        <img class="avatar" src="" alt="User Avatar" id="avatar"/>
+        <h1 id="name">姓名加载中...</h1>
+        <p class="bio" id="bio">简介加载中...</p>
+    </header>
+
+    <!-- 仓库列表 -->
+    <section id="repos">
+        <h2>我的仓库</h2>
+        <ul class="repo-list" id="repo-list">
+            <!-- JS 会插入若干 <li class="repo-item"> -->
+        </ul>
+    </section>
+
+    <!-- 贡献日历 -->
+    <section id="contributions">
+        <h2>贡献日历</h2>
+        <div class="calendar-container">
+            <!-- 这里使用外部 SVG 服务 ghchart -->
+            <img src="https://ghchart.rshah.org/CommentOut64" alt="GitHub 贡献日历" id="contrib-img"/>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        &copy; <span id="current-year"></span> <a href="https://github.com/CommentOut64"
+                                                  target="_blank">CommentOut64</a>. All rights reserved.
+    </footer>
+</div>
+
+<!-- JavaScript：动态从 GitHub API 获取数据 -->
+<script>
+    // 将下方 CommentOut64 替换为你的 GitHub 用户名
+    const GITHUB_USERNAME = "CommentOut64";
+
+    // API 根路径
+    const API_BASE = "https://api.github.com/users/" + GITHUB_USERNAME;
+
+    // 页面加载后执行
+    window.addEventListener("DOMContentLoaded", () => {
+        fetchProfile();
+        fetchRepos();
+        updateFooterYear();
+        // 贡献日历图片链接已经在 HTML 中写死，若要动态替换也可以在这里操作
+        document.getElementById("contrib-img").src = "https://ghchart.rshah.org/" + GITHUB_USERNAME;
+    });
+
+    /**
+     * 获取并渲染用户个人信息
+     */
+    function fetchProfile() {
+        fetch(API_BASE)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("无法获取用户信息：状态码 " + res.status);
+                }
+                return res.json();
+            })
+            .then((profile) => {
+                // 头像
+                const avatarEl = document.getElementById("avatar");
+                avatarEl.src = profile.avatar_url;
+                avatarEl.alt = profile.login + " 的头像";
+
+                // 昵称或登录名
+                const nameEl = document.getElementById("name");
+                nameEl.textContent = profile.name || profile.login;
+
+                // 个人简介
+                const bioEl = document.getElementById("bio");
+                bioEl.textContent = profile.bio || "这个人很懒，什么也没留下。";
+            })
+            .catch((err) => {
+                console.error(err);
+                // 出错时显示默认信息
+                document.getElementById("name").textContent = GITHUB_USERNAME;
+                document.getElementById("bio").textContent = "无法获取简介信息。";
+            });
+    }
+
+    /**
+     * 获取并渲染仓库列表（按最近更新时间排序，只取前 10 个公开仓库）
+     */
+    function fetchRepos() {
+        // GET /users/:username/repos?sort=updated&per_page=10
+        const reposUrl = API_BASE + "/repos?sort=updated&per_page=10";
+
+        fetch(reposUrl)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error("无法获取仓库信息：状态码 " + res.status);
+                }
+                return res.json();
+            })
+            .then((repos) => {
+                const listEl = document.getElementById("repo-list");
+                listEl.innerHTML = ""; // 清空占位文本
+
+                if (Array.isArray(repos) && repos.length > 0) {
+                    repos.forEach((repo) => {
+                        // 创建 li.repo-item
+                        const li = document.createElement("li");
+                        li.className = "repo-item";
+
+                        // 仓库名称（带链接）
+                        const h3 = document.createElement("h3");
+                        const a = document.createElement("a");
+                        a.href = repo.html_url;
+                        a.target = "_blank";
+                        a.textContent = repo.name;
+                        h3.appendChild(a);
+                        li.appendChild(h3);
+
+                        // 仓库描述
+                        if (repo.description) {
+                            const pDesc = document.createElement("p");
+                            pDesc.className = "desc";
+                            pDesc.textContent = repo.description;
+                            li.appendChild(pDesc);
+                        }
+
+                        // 元信息：⭐ 星标数、更新时间
+                        const meta = document.createElement("p");
+                        meta.className = "meta";
+                        const updatedDate = new Date(repo.updated_at).toLocaleDateString("zh-CN", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                        });
+                        meta.textContent = `⭐ ${repo.stargazers_count}   •   最后更新：${updatedDate}`;
+                        li.appendChild(meta);
+
+                        listEl.appendChild(li);
+                    });
+                } else {
+                    // 如果没有仓库，则提示
+                    const emptyItem = document.createElement("li");
+                    emptyItem.textContent = "暂无公开仓库。";
+                    listEl.appendChild(emptyItem);
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                const listEl = document.getElementById("repo-list");
+                listEl.innerHTML = "<li>无法获取仓库列表，请稍后再试。</li>";
+            });
+    }
+
+    /**
+     * 更新页脚年份
+     */
+    function updateFooterYear() {
+        const yearEl = document.getElementById("current-year");
+        const now = new Date();
+        yearEl.textContent = now.getFullYear();
+    }
+</script>
+</body>
+</html>
