@@ -4,8 +4,40 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>我的 GitHub 个人页面</title>
-    <!-- 简单重置与基础样式 -->
+
+    <!-- ==========================
+       全局 CSS 变量：浅色 / 深色主题
+    ========================== -->
     <style>
+        :root {
+            /* 浅色主题配色 */
+            --bg-color: #f5f7fa;
+            --text-color: #24292e;
+            --subtext-color: #586069;
+            --link-color: #0366d6;
+            --card-bg: #ffffff;
+            --border-color: #e1e4e8;
+            --footer-text: #999999;
+            --header-bg: transparent;
+            --button-bg: rgba(27, 31, 35, 0.08);
+            --button-hover-bg: rgba(27, 31, 35, 0.12);
+        }
+
+        [data-theme="dark"] {
+            /* 深色主题配色 */
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --subtext-color: #8b949e;
+            --link-color: #58a6ff;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --footer-text: #8b949e;
+            --header-bg: #161b22;
+            --button-bg: rgba(110, 118, 129, 0.4);
+            --button-hover-bg: rgba(110, 118, 129, 0.6);
+        }
+
+        /* 全局重置 */
         * {
             margin: 0;
             padding: 0;
@@ -14,14 +46,15 @@
 
         body {
             font-family: "Helvetica Neue", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             line-height: 1.6;
-            background-color: #f5f7fa;
-            color: #333;
             padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         a {
-            color: #0366d6;
+            color: var(--link-color);
             text-decoration: none;
         }
 
@@ -32,18 +65,56 @@
         .container {
             max-width: 960px;
             margin: 0 auto;
+            position: relative;
         }
 
+        /* 右上角工具按钮（主题切换 + GitHub 主页） */
+        .top-buttons {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+        }
+
+        .top-buttons button,
+        .top-buttons a.button-link {
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .top-buttons button:hover,
+        .top-buttons a.button-link:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .top-buttons a.button-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        /* 头部：头像 + 名称 + 简介 */
         header {
             text-align: center;
             margin-bottom: 40px;
+            background-color: var(--header-bg);
+            padding-top: 32px; /* 为了腾出给 top-buttons */
         }
 
         header img.avatar {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
+            background-color: var(--card-bg);
         }
 
         header h1 {
@@ -53,20 +124,21 @@
 
         header p.bio {
             font-size: 1rem;
-            color: #555;
+            color: var(--subtext-color);
             margin-top: 8px;
         }
 
+        /* 区块 sektion 标题 */
         section {
             margin-bottom: 40px;
         }
 
         section h2 {
             font-size: 1.5rem;
-            border-bottom: 2px solid #e1e4e8;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 8px;
             margin-bottom: 16px;
-            color: #24292e;
+            color: var(--text-color);
         }
 
         /* 仓库列表 */
@@ -75,60 +147,73 @@
         }
 
         ul.repo-list li.repo-item {
-            background-color: #fff;
+            background-color: var(--card-bg);
             padding: 16px;
             margin-bottom: 12px;
-            border: 1px solid #e1e4e8;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             transition: box-shadow 0.2s ease;
         }
 
         ul.repo-list li.repo-item:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         li.repo-item h3 {
             font-size: 1.2rem;
             margin-bottom: 6px;
+            color: var(--link-color);
+        }
+
+        li.repo-item h3 a {
+            color: var(--link-color);
         }
 
         li.repo-item p.desc {
             font-size: 0.95rem;
-            color: #586069;
+            color: var(--subtext-color);
             margin-bottom: 8px;
         }
 
         li.repo-item .meta {
             font-size: 0.85rem;
-            color: #586069;
+            color: var(--subtext-color);
         }
 
-        /* 贡献日历 */
+        /* 贡献日历容器 */
         .calendar-container {
             text-align: center;
         }
 
-        .calendar-container img {
-            max-width: 100%;
-            border: 1px solid #e1e4e8;
-            border-radius: 6px;
-        }
+        /* github-calendar 默认样式依赖其自身的 CSS，这里无需额外覆盖 */
 
-        /* 版权信息 */
+        /* 页脚 */
         footer {
             text-align: center;
             font-size: 0.85rem;
-            color: #999;
+            color: var(--footer-text);
             padding-top: 20px;
-            border-top: 1px solid #e1e4e8;
+            border-top: 1px solid var(--border-color);
         }
     </style>
+
+    <!-- 引入 GitHub Calendar CSS（来自 CDN）-->
+    <link rel="stylesheet"
+          href="https://unpkg.com/github-calendar@latest/dist/github-calendar-responsive.css"/>
+
 </head>
 <body>
 <div class="container">
-    <!-- 个人简介（从 GitHub API 动态拉取） -->
+    <!-- 右上角按钮：主题切换 & GitHub 主页链接 -->
+    <div class="top-buttons">
+        <!-- 主题切换 -->
+        <button id="theme-toggle-btn">切换主题</button>
+        <!-- GitHub 主页链接 -->
+        <a class="button-link" href="https://github.com/CommentOut64" target="_blank">GitHub 主页</a>
+    </div>
+
+    <!-- 个人简介（骨架状态：加载中）-->
     <header id="profile">
-        <!-- JS 会填充头像、昵称、简介 -->
         <img class="avatar" src="" alt="User Avatar" id="avatar"/>
         <h1 id="name">姓名加载中...</h1>
         <p class="bio" id="bio">简介加载中...</p>
@@ -138,152 +223,200 @@
     <section id="repos">
         <h2>我的仓库</h2>
         <ul class="repo-list" id="repo-list">
-            <!-- JS 会插入若干 <li class="repo-item"> -->
+            <li id="repo-loading">加载中，请稍候……</li>
         </ul>
     </section>
 
-    <!-- 贡献日历 -->
+    <!-- 贡献日历（使用 github-calendar 库）-->
     <section id="contributions">
         <h2>贡献日历</h2>
         <div class="calendar-container">
-            <!-- 这里使用外部 SVG 服务 ghchart -->
-            <img src="https://ghchart.rshah.org/CommentOut64" alt="GitHub 贡献日历" id="contrib-img"/>
+            <div id="github-calendar"></div>
         </div>
     </section>
 
     <!-- 页脚 -->
     <footer>
-        &copy; <span id="current-year"></span> <a href="https://github.com/CommentOut64"
-                                                  target="_blank">CommentOut64</a>. All rights reserved.
+        &copy; <span id="current-year"></span>
+        <a href="https://github.com/CommentOut64" target="_blank">CommentOut64</a>. All rights reserved.
     </footer>
 </div>
 
-<!-- JavaScript：动态从 GitHub API 获取数据 -->
-<script>
-    // 将下方 CommentOut64 替换为你的 GitHub 用户名
-    const GITHUB_USERNAME = "CommentOut64";
-
-    // API 根路径
-    const API_BASE = "https://api.github.com/users/" + GITHUB_USERNAME;
-
-    // 页面加载后执行
-    window.addEventListener("DOMContentLoaded", () => {
-        fetchProfile();
-        fetchRepos();
-        updateFooterYear();
-        // 贡献日历图片链接已经在 HTML 中写死，若要动态替换也可以在这里操作
-        document.getElementById("contrib-img").src = "https://ghchart.rshah.org/" + GITHUB_USERNAME;
-    });
+<!-- ==========================
+     JavaScript：主题切换 & 数据拉取
+========================== -->
+<script defer>
+    // -------------- 常量 & 基础设定 --------------
+    const GITHUB_USERNAME = "CommentOut64";  // 替换为你的 GitHub 用户名
+    const API_BASE = `https://api.github.com/users/${GITHUB_USERNAME}`;
 
     /**
-     * 获取并渲染用户个人信息
+     * 读取并应用主题：优先 localStorage，其次系统 prefers-color-scheme
      */
-    function fetchProfile() {
-        fetch(API_BASE)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error("无法获取用户信息：状态码 " + res.status);
-                }
-                return res.json();
-            })
-            .then((profile) => {
-                // 头像
-                const avatarEl = document.getElementById("avatar");
-                avatarEl.src = profile.avatar_url;
-                avatarEl.alt = profile.login + " 的头像";
-
-                // 昵称或登录名
-                const nameEl = document.getElementById("name");
-                nameEl.textContent = profile.name || profile.login;
-
-                // 个人简介
-                const bioEl = document.getElementById("bio");
-                bioEl.textContent = profile.bio || "这个人很懒，什么也没留下。";
-            })
-            .catch((err) => {
-                console.error(err);
-                // 出错时显示默认信息
-                document.getElementById("name").textContent = GITHUB_USERNAME;
-                document.getElementById("bio").textContent = "无法获取简介信息。";
-            });
+    function applyThemeFromStorage() {
+        const saved = localStorage.getItem("theme");
+        if (saved === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+        } else if (saved === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+        } else {
+            // 未保存，则依据系统偏好
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+        }
     }
 
     /**
-     * 获取并渲染仓库列表（按最近更新时间排序，只取前 10 个公开仓库）
+     * 切换主题并保存偏好
      */
-    function fetchRepos() {
-        // GET /users/:username/repos?sort=updated&per_page=10
-        const reposUrl = API_BASE + "/repos?sort=updated&per_page=10";
-
-        fetch(reposUrl)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error("无法获取仓库信息：状态码 " + res.status);
-                }
-                return res.json();
-            })
-            .then((repos) => {
-                const listEl = document.getElementById("repo-list");
-                listEl.innerHTML = ""; // 清空占位文本
-
-                if (Array.isArray(repos) && repos.length > 0) {
-                    repos.forEach((repo) => {
-                        // 创建 li.repo-item
-                        const li = document.createElement("li");
-                        li.className = "repo-item";
-
-                        // 仓库名称（带链接）
-                        const h3 = document.createElement("h3");
-                        const a = document.createElement("a");
-                        a.href = repo.html_url;
-                        a.target = "_blank";
-                        a.textContent = repo.name;
-                        h3.appendChild(a);
-                        li.appendChild(h3);
-
-                        // 仓库描述
-                        if (repo.description) {
-                            const pDesc = document.createElement("p");
-                            pDesc.className = "desc";
-                            pDesc.textContent = repo.description;
-                            li.appendChild(pDesc);
-                        }
-
-                        // 元信息：⭐ 星标数、更新时间
-                        const meta = document.createElement("p");
-                        meta.className = "meta";
-                        const updatedDate = new Date(repo.updated_at).toLocaleDateString("zh-CN", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                        });
-                        meta.textContent = `⭐ ${repo.stargazers_count}   •   最后更新：${updatedDate}`;
-                        li.appendChild(meta);
-
-                        listEl.appendChild(li);
-                    });
-                } else {
-                    // 如果没有仓库，则提示
-                    const emptyItem = document.createElement("li");
-                    emptyItem.textContent = "暂无公开仓库。";
-                    listEl.appendChild(emptyItem);
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-                const listEl = document.getElementById("repo-list");
-                listEl.innerHTML = "<li>无法获取仓库列表，请稍后再试。</li>";
-            });
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme");
+        if (current === "dark") {
+            document.documentElement.setAttribute("data-theme", "light");
+            localStorage.setItem("theme", "light");
+        } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem("theme", "dark");
+        }
     }
 
     /**
      * 更新页脚年份
      */
     function updateFooterYear() {
-        const yearEl = document.getElementById("current-year");
-        const now = new Date();
-        yearEl.textContent = now.getFullYear();
+        document.getElementById("current-year").textContent = new Date().getFullYear();
     }
+
+    /**
+     * 并行获取用户信息和仓库列表，渲染到页面
+     */
+    function fetchDataAndRender() {
+        // 采用 no-cache，确保每次拉取最新数据
+        const profilePromise = fetch(API_BASE, {cache: "no-cache"})
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`获取用户信息失败：状态码 ${res.status}`);
+                }
+                return res.json();
+            });
+
+        const reposPromise = fetch(`${API_BASE}/repos?sort=updated&per_page=10`, {cache: "no-cache"})
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`获取仓库列表失败：状态码 ${res.status}`);
+                }
+                return res.json();
+            });
+
+        Promise.all([profilePromise, reposPromise])
+            .then(([profile, repos]) => {
+                renderProfile(profile);
+                renderRepos(repos);
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("name").textContent = GITHUB_USERNAME;
+                document.getElementById("bio").textContent = "无法获取用户信息。";
+                const listEl = document.getElementById("repo-list");
+                listEl.innerHTML = "<li>无法获取仓库列表，请稍后再试。</li>";
+            });
+    }
+
+    /**
+     * 渲染个人信息
+     */
+    function renderProfile(profile) {
+        const avatarEl = document.getElementById("avatar");
+        avatarEl.src = profile.avatar_url;
+        avatarEl.alt = `${profile.login} 的头像`;
+
+        const nameEl = document.getElementById("name");
+        nameEl.textContent = profile.name || profile.login;
+
+        const bioEl = document.getElementById("bio");
+        bioEl.textContent = profile.bio || "这个人很懒，什么也没留下。";
+    }
+
+    /**
+     * 渲染仓库列表
+     */
+    function renderRepos(repos) {
+        const listEl = document.getElementById("repo-list");
+        listEl.innerHTML = "";  // 清空“加载中”提示
+
+        if (Array.isArray(repos) && repos.length > 0) {
+            repos.forEach(repo => {
+                const li = document.createElement("li");
+                li.className = "repo-item";
+
+                // 仓库名称
+                const h3 = document.createElement("h3");
+                const a = document.createElement("a");
+                a.href = repo.html_url;
+                a.target = "_blank";
+                a.textContent = repo.name;
+                h3.appendChild(a);
+                li.appendChild(h3);
+
+                // 描述
+                if (repo.description) {
+                    const pDesc = document.createElement("p");
+                    pDesc.className = "desc";
+                    pDesc.textContent = repo.description;
+                    li.appendChild(pDesc);
+                }
+
+                // 元信息：星标数 & 更新时间
+                const meta = document.createElement("p");
+                meta.className = "meta";
+                const updatedDate = new Date(repo.updated_at).toLocaleDateString("zh-CN", {
+                    year: "numeric", month: "2-digit", day: "2-digit"
+                });
+                meta.textContent = `⭐ ${repo.stargazers_count} ・ 最后更新：${updatedDate}`;
+                li.appendChild(meta);
+
+                listEl.appendChild(li);
+            });
+        } else {
+            const emptyItem = document.createElement("li");
+            emptyItem.textContent = "暂无公开仓库。";
+            listEl.appendChild(emptyItem);
+        }
+    }
+
+    /**
+     * 初始化 GitHub Calendar
+     */
+    function initGitHubCalendar() {
+        // GitHub Calendar 会自动读取 HTML 中的 <div id="github-calendar"></div>
+        // 下面的选项与 GitHub 样式尽量保持一致
+        new GitHubCalendar("#github-calendar", GITHUB_USERNAME, {
+            responsive: true,
+            tooltips: true,
+            summary_text: "贡献概览",
+            global_stats: false
+        });
+    }
+
+    // ==========================
+    // 页面加载时执行
+    // ==========================
+    document.addEventListener("DOMContentLoaded", () => {
+        applyThemeFromStorage();
+        updateFooterYear();
+
+        // 绑定主题切换按钮
+        document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
+
+        // 并行拉取数据并渲染
+        fetchDataAndRender();
+
+        // 初始化 Contribution 日历
+        initGitHubCalendar();
+    });
 </script>
+
+<!-- 引入 GitHub Calendar JS（来自 CDN）-->
+<script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js" defer></script>
 </body>
 </html>
