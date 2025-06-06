@@ -6,7 +6,7 @@
     <title>我的 GitHub 个人页面</title>
 
     <!-- ==========================
-       全局 CSS 变量：浅色 / 深色主题
+         全局 CSS 变量：浅色 / 深色主题
     ========================== -->
     <style>
         :root {
@@ -128,7 +128,7 @@
             margin-top: 8px;
         }
 
-        /* 区块 sektion 标题 */
+        /* 区块标题 */
         section {
             margin-bottom: 40px;
         }
@@ -183,7 +183,6 @@
         /* 贡献日历容器 */
         .calendar-container {
             text-align: center;
-            /* 给予一个最小高度，避免加载前空白过大 */
             min-height: 200px;
         }
 
@@ -228,11 +227,10 @@
         </ul>
     </section>
 
-    <!-- 贡献日历（静态 SVG 方案）-->
+    <!-- 贡献日历（静态 SVG）-->
     <section id="contributions">
         <h2>贡献日历</h2>
         <div class="calendar-container">
-            <!-- 直接使用 ghchart.rshah.org 提供的 SVG，保证无 CORS 问题 -->
             <img
                     src="https://ghchart.rshah.org/CommentOut64"
                     alt="GitHub 贡献日历"
@@ -372,7 +370,7 @@
                     li.appendChild(pDesc);
                 }
 
-                // 元信息：星标数 & 更新时间
+                // 元信息：⭐ 星标数 & 最后更新
                 const meta = document.createElement("p");
                 meta.className = "meta";
                 const updatedDate = new Date(repo.updated_at).toLocaleDateString("zh-CN", {
@@ -391,7 +389,7 @@
     }
 
     // ==========================
-    // 页面加载后执行
+    // 页面加载完成后执行
     // ==========================
     document.addEventListener("DOMContentLoaded", () => {
         applyThemeFromStorage();
@@ -403,7 +401,7 @@
         // 并行拉取数据并渲染
         fetchDataAndRender();
 
-        // 静态 SVG 贡献日历：直接设置 src，无需额外初始化
+        // 确保静态 SVG 贡献日历使用最新用户名
         document.getElementById("contrib-img").src = `https://ghchart.rshah.org/${GITHUB_USERNAME}`;
     });
 </script>
