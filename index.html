@@ -184,11 +184,10 @@
         .calendar-container {
             text-align: center;
             /* 给予一个最小高度，避免加载前空白过大 */
-            min-height: 280px;
+            min-height: 200px;
         }
 
-        /* 当日历内容加载失败或回退时，静态 SVG 填充容器 */
-        .calendar-container img.static-calendar {
+        .calendar-container img {
             max-width: 100%;
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -203,10 +202,6 @@
             border-top: 1px solid var(--border-color);
         }
     </style>
-
-    <!-- 引入 GitHub Calendar 官方 CSS -->
-    <link rel="stylesheet"
-          href="https://unpkg.com/github-calendar@latest/dist/github-calendar.css"/>
 </head>
 <body>
 <div class="container">
@@ -233,21 +228,15 @@
         </ul>
     </section>
 
-    <!-- 贡献日历（使用 github-calendar 库或静态 SVG 回退）-->
+    <!-- 贡献日历（静态 SVG 方案）-->
     <section id="contributions">
         <h2>贡献日历</h2>
         <div class="calendar-container">
-            <!-- 初始显示“加载中”文字，待 JS 决定显示互动日历还是回退 SVG -->
-            <p id="calendar-loading">贡献日历加载中…</p>
-            <!-- 互动日历容器，github-calendar 会用 JS 填充这里 -->
-            <div id="github-calendar" style="display: none;"></div>
-            <!-- 若 JS 报错或加载失败，则自动显示该静态 SVG -->
+            <!-- 直接使用 ghchart.rshah.org 提供的 SVG，保证无 CORS 问题 -->
             <img
-                    id="static-contrib"
-                    class="static-calendar"
                     src="https://ghchart.rshah.org/CommentOut64"
-                    alt="静态 GitHub 贡献日历"
-                    style="display: none;"
+                    alt="GitHub 贡献日历"
+                    id="contrib-img"
             />
         </div>
     </section>
@@ -260,11 +249,11 @@
 </div>
 
 <!-- ==========================
-     JavaScript：主题切换 & 数据拉取 & Calendar 初始化
+     JavaScript：主题切换 & 数据拉取
 ========================== -->
 <script>
     // -------------- 常量 & 基础设定 --------------
-    const GITHUB_USERNAME = "CommentOut64";  // 替换为你的 GitHub 用户名
+    const GITHUB_USERNAME = "CommentOut64";  // 请替换为你的 GitHub 用户名
     const API_BASE = `https://api.github.com/users/${GITHUB_USERNAME}`;
 
     /**
@@ -401,38 +390,10 @@
         }
     }
 
-    /**
-     * 初始化 GitHub Calendar
-     * 如果出错，则回退到静态 SVG（ghchart.rshah.org）
-     */
-    function initGitHubCalendar() {
-        try {
-            // 隐藏“加载中”文字，显示互动日历容器
-            document.getElementById("calendar-loading").style.display = "none";
-            const calContainer = document.getElementById("github-calendar");
-            calContainer.style.display = "block";
-
-            // 调用 github-calendar 库
-            new GitHubCalendar("#github-calendar", GITHUB_USERNAME, {
-                responsive: true,
-                tooltips: true,
-                summary_text: "贡献概览",
-                global_stats: false
-            });
-        } catch (err) {
-            console.error("GitHub Calendar 初始化失败，将回退到静态 SVG：", err);
-            // 隐藏互动日历容器，显示静态 SVG
-            document.getElementById("github-calendar").style.display = "none";
-            document.getElementById("calendar-loading").style.display = "none";
-            const staticImg = document.getElementById("static-contrib");
-            staticImg.style.display = "block";
-        }
-    }
-
     // ==========================
-    // 页面所有资源（包括 CSS/JS）加载完毕后，再执行
+    // 页面加载后执行
     // ==========================
-    window.addEventListener("load", () => {
+    document.addEventListener("DOMContentLoaded", () => {
         applyThemeFromStorage();
         updateFooterYear();
 
@@ -442,12 +403,9 @@
         // 并行拉取数据并渲染
         fetchDataAndRender();
 
-        // 初始化 Contribution 日历
-        initGitHubCalendar();
+        // 静态 SVG 贡献日历：直接设置 src，无需额外初始化
+        document.getElementById("contrib-img").src = `https://ghchart.rshah.org/${GITHUB_USERNAME}`;
     });
 </script>
-
-<!-- 引入 GitHub Calendar 官方 JS -->
-<script src="https://unpkg.com/github-calendar@latest/dist/github-calendar.min.js"></script>
 </body>
 </html>
